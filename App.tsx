@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ImageUploader } from './components/ImageUploader';
 import { generatePrompt, generateImage } from './services/geminiService';
 import {
@@ -34,7 +34,7 @@ const App: React.FC = () => {
     setStyleOptions(prev => ({ ...prev, [name]: value }));
   };
 
-  const memoizedGeneratePrompt = useCallback(async () => {
+  const handleGeneratePrompt = async () => {
     setIsPromptLoading(true);
     setError(null);
     try {
@@ -46,24 +46,11 @@ const App: React.FC = () => {
     } finally {
       setIsPromptLoading(false);
     }
-  }, [styleOptions, styleReferenceImage]);
-
-
-  useEffect(() => {
-      const handler = setTimeout(() => {
-        memoizedGeneratePrompt();
-      }, 500); // Debounce prompt generation
-
-      return () => {
-          clearTimeout(handler);
-      };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [styleOptions, styleReferenceImage]); // Re-run when options or reference image changes
-
+  };
 
   const handleGenerateImage = async () => {
     if (!productImage || !generatedPrompt) {
-      setError("Please upload a product image and ensure a prompt is generated.");
+      setError("Please upload a product image and ensure you have a prompt.");
       return;
     }
     setIsImageLoading(true);
@@ -133,17 +120,26 @@ const App: React.FC = () => {
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg space-y-6">
             <h2 className="text-2xl font-bold border-b border-gray-700 pb-2">2. Generate</h2>
             <div>
-              <label htmlFor="generatedPrompt" className="block text-sm font-medium text-gray-300">Generated AI Prompt</label>
-              <div className="relative">
+              <div className="flex justify-between items-center">
+                <label htmlFor="generatedPrompt" className="block text-sm font-medium text-gray-300">AI Prompt</label>
+                <button
+                    onClick={handleGeneratePrompt}
+                    disabled={isPromptLoading}
+                    className="flex items-center text-sm font-medium px-3 py-1 rounded-md bg-gray-700 hover:bg-gray-600 text-red-400 hover:text-red-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+                  >
+                  {isPromptLoading && <LoadingSpinner className="w-4 h-4 mr-2" />}
+                  {isPromptLoading ? 'Generating...' : 'Generate with AI'}
+                </button>
+              </div>
+              <div className="relative mt-2">
                 <textarea
                   id="generatedPrompt"
                   rows={6}
-                  className="mt-1 block w-full shadow-sm sm:text-sm bg-gray-900 border-gray-600 rounded-md p-3 pr-10"
+                  className="block w-full shadow-sm sm:text-sm bg-gray-900 border-gray-600 rounded-md p-3 focus:ring-red-500 focus:border-red-500"
                   value={generatedPrompt}
-                  readOnly
-                  placeholder="Your detailed prompt will appear here..."
+                  onChange={(e) => setGeneratedPrompt(e.target.value)}
+                  placeholder="Click 'Generate with AI' or write your own detailed prompt..."
                 />
-                {isPromptLoading && <div className="absolute top-3 right-3"><LoadingSpinner className="h-5 w-5 text-red-400" /></div>}
               </div>
             </div>
 
