@@ -1,0 +1,5 @@
+{
+  "name": "Creative Banana",
+  "description": "An AI-powered photo editing application that uses Nano Banana (Gemini) to generate professional product photos. Upload a product image, select styling options like aspect ratio, lighting, and perspective, and optionally provide a style reference image to generate a new, stylized product shot.",
+  "requestFramePermissions": []
+}
